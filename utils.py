@@ -109,48 +109,44 @@ def parse_as_XML(file_path: str) -> dict:
 
     parser = etree.XMLParser(recover=True)
 
-    try:
-        tree = etree.parse(file_path, parser)
+    tree = etree.parse(file_path, parser)
 
-        root = tree.getroot()
+    root = tree.getroot()
 
-        if root == None:
-            raise Exception("File cannot be parsed as XML")
+    if root == None:
+        raise Exception("File cannot be parsed as XML")
 
-        for element in root.iter():
-            # print(f"Tag: {str(element.tag)} Text:{str(element.text)}")
+    for element in root.iter():
+        # print(f"Tag: {str(element.tag)} Text:{str(element.text)}")
 
-            tag = element.tag.lower()
-            keys = (
-                [x.lower() for x in element.attrib.keys()[0]]
-                if len(element.attrib.keys()) > 0
-                else None
-            )
+        tag = element.tag.lower()
+        keys = (
+            [x.lower() for x in element.attrib.keys()[0]]
+            if len(element.attrib.keys()) > 0
+            else None
+        )
 
-            if "description" in tag:
-                if keys != None:
-                    if "about" in keys:
-                        entities.append(element.get(keys))
+        if "description" in tag:
+            if keys != None:
+                if "about" in keys:
+                    entities.append(element.get(keys))
 
-            elif "type" in tag:
-                if keys != None:
-                    if "resource" in keys:
-                        classes.append(element.get(keys))
+        elif "type" in tag:
+            if keys != None:
+                if "resource" in keys:
+                    classes.append(element.get(keys))
 
-            elif "}" in tag:
-                split = element.tag.split("}")
-                property = split[1].lower()
-                if property != "rdf" and property != "description":
-                    properties.append(property)
+        elif "}" in tag:
+            split = element.tag.split("}")
+            property = split[1].lower()
+            if property != "rdf" and property != "description":
+                properties.append(property)
 
-            else:
-                properties.append(element.tag)
+        else:
+            properties.append(element.tag)
 
-            if element.text != None and element.text.strip():
-                literals.append(element.text)
-
-    except Exception as e:
-        print(f"{file_path} EXCEPTION: {str(e)}")
+        if element.text != None and element.text.strip():
+            literals.append(element.text)
 
     return {
         "entities": entities,
